@@ -50,43 +50,43 @@ IndiceCalculoCorrelacao <- function(
 
   `%nin%` = base::Negate(`%in%`)
 
-  all_indices = indice_correlacao %>%
-    dplyr::filter(
-      !base::is.na(indice_variavel) &
-        indice_variavel %nin% c(""," ")
-    ) %>%
-    dplyr::select(indice_sigla) %>%
-    dplyr::pull()
+  # all_indices = indice_correlacao %>%
+  #   dplyr::filter(
+  #     !base::is.na(indice_variavel) &
+  #       indice_variavel %nin% c(""," ")
+  #   ) %>%
+  #   dplyr::select(indice_sigla) %>%
+  #   dplyr::pull()
 
-  {# Start: Criando para p/salvar arquivo temporário (não armazenar no MiB do R)
-
-    # Criar o diretório temporário
-    base::dir.create(caminho_temporario) %>%
-      base::suppressWarnings()
-
-    # Remover todos os arquivos e subdiretórios dentro do diretório temporário, para começar com um diretório limpo
-    base::unlink(
-      x = base::paste0(caminho_temporario, "/*"),
-      recursive = TRUE
-    )
-
-    }# End: Criando para p/salvar arquivo temporário (não armazenar no MiB do R)
+  # {# Start: Criando para p/salvar arquivo temporário (não armazenar no MiB do R)
+  #
+  #   # Criar o diretório temporário
+  #   base::dir.create(caminho_temporario) %>%
+  #     base::suppressWarnings()
+  #
+  #   # Remover todos os arquivos e subdiretórios dentro do diretório temporário, para começar com um diretório limpo
+  #   base::unlink(
+  #     x = base::paste0(caminho_temporario, "/*"),
+  #     recursive = TRUE
+  #   )
+  #
+  #   }# End: Criando para p/salvar arquivo temporário (não armazenar no MiB do R)
 
   # calculando
-  x = split %>%
-    dplyr::filter(
-      dono_id %in% c(
-        split %>%
-          dplyr::filter(pasta_nome %in% c(rodando)) %>%
-          dplyr::select(split_id) %>%
-          base::unique() %>%
-          dplyr::pull()
-      )
-    ) %>%
-    # dplyr::filter(dono_id == 3) %>%
-    dplyr::arrange(dono_id) %>%
-    dplyr::group_by(dono_id) %>%
-    dplyr::group_split()
+  # x = split %>%
+  #   dplyr::filter(
+  #     dono_id %in% c(
+  #       split %>%
+  #         dplyr::filter(pasta_nome %in% c(rodando)) %>%
+  #         dplyr::select(split_id) %>%
+  #         base::unique() %>%
+  #         dplyr::pull()
+  #     )
+  #   ) %>%
+  #   # dplyr::filter(dono_id == 3) %>%
+  #   dplyr::arrange(dono_id) %>%
+  #   dplyr::group_by(dono_id) %>%
+  #   dplyr::group_split()
 
   base::print(all_indices)
   # x %>%
