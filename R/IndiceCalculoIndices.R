@@ -785,6 +785,17 @@ IndiceCalculoIndices <- function(
                         by = join_by("name_orig")
                       )
 
+                      if( base::all(base::is.na(medias_calculadas$var_indice)) )
+                      {# Start: se tudo resultou em NA
+
+                        medias_calculadas = tibble::tibble(
+                          name_orig = all_vars,
+                          var_indice = base::rep(NA,base::length(all_vars)),
+                          var_media = base::rep(NA,base::length(all_vars))
+                        )
+
+                      }# End: se tudo resultou em NA
+
                       # left_join é para garantir que tenha todas as vars no banco calculado
                       medias_calculadas = dplyr::left_join(
                         tibble::tibble(
