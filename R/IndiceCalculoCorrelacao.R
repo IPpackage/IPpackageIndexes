@@ -50,13 +50,13 @@ IndiceCalculoCorrelacao <- function(
 
   `%nin%` = base::Negate(`%in%`)
 
-  # all_indices = indice_correlacao %>%
-  #   dplyr::filter(
-  #     !base::is.na(indice_variavel) &
-  #       indice_variavel %nin% c(""," ")
-  #   ) %>%
-  #   dplyr::select(indice_sigla) %>%
-  #   dplyr::pull()
+  all_indices = indice_correlacao %>%
+    dplyr::filter(
+      !base::is.na(indice_variavel) &
+        indice_variavel %nin% c(""," ")
+    ) %>%
+    dplyr::select(indice_sigla) %>%
+    dplyr::pull()
 
   # {# Start: Criando para p/salvar arquivo temporário (não armazenar no MiB do R)
   #
