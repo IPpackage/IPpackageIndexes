@@ -50,55 +50,6 @@ IndiceCalculoCorrelacao <- function(
 
   `%nin%` = base::Negate(`%in%`)
 
-  # Função auxiliar para os cálculos
-  estima_CORR_peso <- function(dados, variaveis, metodo = "pearson") {
-
-    out <- vector(mode = "list", length = length(variaveis))
-
-    for (i in seq_along(out)) {
-      out[[i]] <- wdm::indep_test(
-        x = dados %>%
-          dplyr::select(dplyr::all_of(variaveis[[i]][[1]])) %>%
-          dplyr::mutate(!!names(variaveis[[i]][1]) := rowMeans(dplyr::pick(dplyr::all_of(variaveis[[i]][[1]])), na.rm = T)) %>%
-          dplyr::pull(!!names(variaveis[[i]][1])),
-        y = dados %>%
-          dplyr::select(dplyr::all_of(variaveis[[i]][[2]])) %>%
-          dplyr::mutate(!!names(variaveis[[i]][2]) := rowMeans(dplyr::pick(dplyr::all_of(variaveis[[i]][[2]])), na.rm = T)) %>%
-          dplyr::pull(!!names(variaveis[[i]][2])),
-        weights = dados %>%
-          dplyr::pull(peso),
-        method = metodo,
-        remove_missing = TRUE,
-        alternative = "two-sided"
-      ) %>%
-        dplyr::mutate(
-          "var1" = variaveis[[i]][1] %>% names(),
-          "var2" = variaveis[[i]][2] %>% names()
-        ) %>%
-        dplyr::mutate(
-          "var1_vars" = variaveis[[i]][[1]] %>% stringr::str_flatten_comma(),
-          "var2_vars" = variaveis[[i]][[2]] %>% stringr::str_flatten_comma()
-        )
-    }
-
-    out_df <- out %>%
-      dplyr::bind_rows() %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate("sig_stars" = dplyr::case_when(
-        p_value <= 0.001  ~ "***",
-        p_value <= 0.01   ~ "**",
-        p_value <= 0.05   ~ "*",
-        TRUE              ~ ""
-      )) %>%
-      dplyr::select(
-        var1, var2 ,
-        "Correlacao" = estimate, statistic, "p_valor" = p_value, sig_stars, "M\u00E9todo" = method, "hip_alternativa" = alternative,
-        var1_vars, var2_vars
-      )
-
-    return(out_df)
-  }
-
   all_indices = indice_correlacao %>%
     dplyr::filter(
       !base::is.na(indice_variavel) &
