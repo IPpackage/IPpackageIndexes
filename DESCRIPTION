@@ -10,6 +10,6 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
-Imports: dplyr, purrr, stringr, tibble, tidyr, IPpackage, wdm
+Imports: dplyr, purrr, stringr, tibble, tidyr, IPpackage, wdm, openxlsx
 Depends: 
     R (>= 2.10)
