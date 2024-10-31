@@ -664,209 +664,214 @@ IndicePlanilhaSatisfacao <- function(
           dplyr::slice(1) %>%
           dplyr::pull()
 
-        {# Start: separando pelas quebras de sequência
+        if( base::length(indicadores_linhas) > 0 )
+        {# Start: Pelo menos um índice para essa cor
 
-          separado = base::list()
-          nlistas = 1
-          w = 1
-          separado[[nlistas]] = c(indicadores_linhas[w])
-
-          for( w in 1:c(base::length(indicadores_linhas)-1) )
           {# Start: separando pelas quebras de sequência
 
-            if( base::length(indicadores_linhas) > 1 )
-            {# Start: se tenho mais de um índice para olhar
+            separado = base::list()
+            nlistas = 1
+            w = 1
+            separado[[nlistas]] = c(indicadores_linhas[w])
 
-              ww = indicadores_linhas[w + 1] == indicadores_linhas[w] + 1
+            for( w in 1:c(base::length(indicadores_linhas)-1) )
+            {# Start: separando pelas quebras de sequência
 
-              if( ww == TRUE )
-              {
+              if( base::length(indicadores_linhas) > 1 )
+              {# Start: se tenho mais de um índice para olhar
 
-                separado[[nlistas]] = base::unique(c(separado[[nlistas]], indicadores_linhas[w + 1]))
+                ww = indicadores_linhas[w + 1] == indicadores_linhas[w] + 1
 
-              } else {
+                if( ww == TRUE )
+                {
 
-                nlistas = nlistas + 1
+                  separado[[nlistas]] = base::unique(c(separado[[nlistas]], indicadores_linhas[w + 1]))
 
-                separado[[nlistas]] = base::unique(c(indicadores_linhas[w + 1]))
+                } else {
 
-              }
+                  nlistas = nlistas + 1
 
-            }
+                  separado[[nlistas]] = base::unique(c(indicadores_linhas[w + 1]))
 
-          }# End: separando pelas quebras de sequência
-
-          base::rm(w, nlistas, indicadores_linhas) %>%
-            base::suppressWarnings()
-
-          }# End: separando pelas quebras de sequência
-
-        for( w in 1:base::length(separado) )
-        {# Start: rodando para cada sequência de seguidos
-
-          indicadores_linhas = separado[[w]]
-
-          # if( !base::any(indicadores_rodando %in% c(indice_nao_mesclar)) )
-          {# Start: Mesclando células apenas para índices específicos
-
-            openxlsx::removeCellMerge(
-              wb = wb,
-              sheet = nome_aba,
-              cols = 1,
-              rows = indicadores_linhas
-            )
-
-            openxlsx::mergeCells(
-              wb = wb,
-              sheet = nome_aba,
-              cols = 1,
-              rows = indicadores_linhas
-            )
-
-          }# End: Mesclando células apenas para índices específicos
-
-          # Aplicando estilo para a coluna de índice com a cor de fundo e cor da letra
-          openxlsx::addStyle(
-            wb = wb,
-            sheet = nome_aba,
-            style = openxlsx::createStyle(
-              fontSize = 10,
-              fontColour = indicador_cor,
-              fgFill = all_cores[i],
-              textDecoration = c("BOLD"),
-              halign = "center",
-              valign = "center"
-            ),
-            rows = indicadores_linhas,
-            cols = 1,
-            gridExpand = TRUE
-          )
-
-          for( j in 1:length(indicadores_linhas) )
-          {# Start: Aplicando estilo em negrito para linhas específicas
-
-            # Determinando cor de fundo: cinza ou branco
-            fund_cinza = Tab_Fundo_cinza %>%
-              dplyr::filter(IDAR == dados$indice_sigla[indicadores_linhas[j] - inicio_tabela_numerico]) %>%
-              dplyr::select(fundo_cinza) %>%
-              dplyr::pull()
-
-            fundo_cor = base::ifelse(fund_cinza == TRUE, "#F2F2F2", "white")
-
-            # Determinando se a fonte será em negrito
-            letra_negrito = NULL
-            if( indicadores_linhas[j] %in% c(negrito) )
-            {
-              letra_negrito = "BOLD"
-            }
-
-            # Aplicando estilo para a célula de texto na segunda coluna
-            openxlsx::addStyle(
-              wb = wb,
-              sheet = nome_aba,
-              style = openxlsx::createStyle(
-                fontSize = 10,
-                fontColour = "black",
-                fgFill = fundo_cor,
-                textDecoration = letra_negrito,
-                halign = "left",
-                valign = "center",
-                wrapText = TRUE
-              ),
-              rows = indicadores_linhas[j],
-              cols = 2,
-              gridExpand = FALSE
-            ) %>% base::suppressWarnings()
-
-            for( k in 3:17 )
-            {# Start: Preenchendo células vazias com "-" e aplicando estilo numérico
-              linha_rodando = indicadores_linhas[j] - inicio_tabela_numerico
-              coluna_rodando = k - 2
-
-              if (!base::is.na(dados[linha_rodando, 1])) {
-                if (base::is.na(tabela_dados_numericos[linha_rodando, coluna_rodando])) {
-                  openxlsx::writeData(
-                    wb = wb,
-                    sheet = nome_aba,
-                    x = "-",
-                    startCol = k,
-                    startRow = indicadores_linhas[j],
-                    rowNames = FALSE,
-                    colNames = FALSE
-                  )
                 }
+
               }
-            }# End: Preenchendo células vazias com "-" e aplicando estilo numérico
 
-            # Formatando linhas da tabela com valores numéricos
+            }# End: separando pelas quebras de sequência
+
+            base::rm(w, nlistas, indicadores_linhas) %>%
+              base::suppressWarnings()
+
+          }# End: separando pelas quebras de sequência
+
+          for( w in 1:base::length(separado) )
+          {# Start: rodando para cada sequência de seguidos
+
+            indicadores_linhas = separado[[w]]
+
+            # if( !base::any(indicadores_rodando %in% c(indice_nao_mesclar)) )
+            {# Start: Mesclando células apenas para índices específicos
+
+              openxlsx::removeCellMerge(
+                wb = wb,
+                sheet = nome_aba,
+                cols = 1,
+                rows = indicadores_linhas
+              )
+
+              openxlsx::mergeCells(
+                wb = wb,
+                sheet = nome_aba,
+                cols = 1,
+                rows = indicadores_linhas
+              )
+
+            }# End: Mesclando células apenas para índices específicos
+
+            # Aplicando estilo para a coluna de índice com a cor de fundo e cor da letra
             openxlsx::addStyle(
               wb = wb,
               sheet = nome_aba,
               style = openxlsx::createStyle(
                 fontSize = 10,
-                fontColour = "black",
-                fgFill = fundo_cor,
-                textDecoration = letra_negrito,
+                fontColour = indicador_cor,
+                fgFill = all_cores[i],
+                textDecoration = c("BOLD"),
                 halign = "center",
-                valign = "center",
-                wrapText = TRUE,
-                numFmt = "0.0"
+                valign = "center"
               ),
-              rows = indicadores_linhas[j],
-              cols = c(3:14, 17),
-              gridExpand = FALSE
-            ) %>%
-              base::suppressWarnings()
+              rows = indicadores_linhas,
+              cols = 1,
+              gridExpand = TRUE
+            )
 
-            # Aplicando formatação para coluna "Base"
-            openxlsx::addStyle(
-              wb = wb,
-              sheet = nome_aba,
-              style = openxlsx::createStyle(
-                fontSize = 10,
-                fontColour = "black",
-                fgFill = fundo_cor,
-                textDecoration = letra_negrito,
-                halign = "center",
-                valign = "center",
-                wrapText = TRUE,
-                numFmt = "0"
-              ),
-              rows = indicadores_linhas[j],
-              cols = 15,
-              gridExpand = FALSE
-            ) %>%
-              base::suppressWarnings()
+            for( j in 1:length(indicadores_linhas) )
+            {# Start: Aplicando estilo em negrito para linhas específicas
 
-            # Aplicando estilo específico para coluna "Índice"
-            openxlsx::addStyle(
-              wb = wb,
-              sheet = nome_aba,
-              style = openxlsx::createStyle(
-                fontSize = 10,
-                fontColour = "white",
-                fgFill = "#848484",
-                textDecoration = letra_negrito,
-                halign = "center",
-                valign = "center",
-                wrapText = TRUE,
-                numFmt = "0.0"
-              ),
-              rows = indicadores_linhas[j],
-              cols = 16,
-              gridExpand = FALSE
-            ) %>%
-              base::suppressWarnings()
+              # Determinando cor de fundo: cinza ou branco
+              fund_cinza = Tab_Fundo_cinza %>%
+                dplyr::filter(IDAR == dados$indice_sigla[indicadores_linhas[j] - inicio_tabela_numerico]) %>%
+                dplyr::select(fundo_cinza) %>%
+                dplyr::pull()
 
-            # Removendo variáveis temporárias
-            base::rm(fund_cinza, fundo_cor, letra_negrito) %>%
-              base::suppressWarnings()
-          }# End: Aplicando estilo em negrito para linhas específicas
+              fundo_cor = base::ifelse(fund_cinza == TRUE, "#F2F2F2", "white")
 
-          # Limpando variável temporária do loop
-          base::rm(j)
+              # Determinando se a fonte será em negrito
+              letra_negrito = NULL
+              if( indicadores_linhas[j] %in% c(negrito) )
+              {
+                letra_negrito = "BOLD"
+              }
 
-        }# End: rodando para cada sequência de seguidos
+              # Aplicando estilo para a célula de texto na segunda coluna
+              openxlsx::addStyle(
+                wb = wb,
+                sheet = nome_aba,
+                style = openxlsx::createStyle(
+                  fontSize = 10,
+                  fontColour = "black",
+                  fgFill = fundo_cor,
+                  textDecoration = letra_negrito,
+                  halign = "left",
+                  valign = "center",
+                  wrapText = TRUE
+                ),
+                rows = indicadores_linhas[j],
+                cols = 2,
+                gridExpand = FALSE
+              ) %>% base::suppressWarnings()
+
+              for( k in 3:17 )
+              {# Start: Preenchendo células vazias com "-" e aplicando estilo numérico
+                linha_rodando = indicadores_linhas[j] - inicio_tabela_numerico
+                coluna_rodando = k - 2
+
+                if (!base::is.na(dados[linha_rodando, 1])) {
+                  if (base::is.na(tabela_dados_numericos[linha_rodando, coluna_rodando])) {
+                    openxlsx::writeData(
+                      wb = wb,
+                      sheet = nome_aba,
+                      x = "-",
+                      startCol = k,
+                      startRow = indicadores_linhas[j],
+                      rowNames = FALSE,
+                      colNames = FALSE
+                    )
+                  }
+                }
+              }# End: Preenchendo células vazias com "-" e aplicando estilo numérico
+
+              # Formatando linhas da tabela com valores numéricos
+              openxlsx::addStyle(
+                wb = wb,
+                sheet = nome_aba,
+                style = openxlsx::createStyle(
+                  fontSize = 10,
+                  fontColour = "black",
+                  fgFill = fundo_cor,
+                  textDecoration = letra_negrito,
+                  halign = "center",
+                  valign = "center",
+                  wrapText = TRUE,
+                  numFmt = "0.0"
+                ),
+                rows = indicadores_linhas[j],
+                cols = c(3:14, 17),
+                gridExpand = FALSE
+              ) %>%
+                base::suppressWarnings()
+
+              # Aplicando formatação para coluna "Base"
+              openxlsx::addStyle(
+                wb = wb,
+                sheet = nome_aba,
+                style = openxlsx::createStyle(
+                  fontSize = 10,
+                  fontColour = "black",
+                  fgFill = fundo_cor,
+                  textDecoration = letra_negrito,
+                  halign = "center",
+                  valign = "center",
+                  wrapText = TRUE,
+                  numFmt = "0"
+                ),
+                rows = indicadores_linhas[j],
+                cols = 15,
+                gridExpand = FALSE
+              ) %>%
+                base::suppressWarnings()
+
+              # Aplicando estilo específico para coluna "Índice"
+              openxlsx::addStyle(
+                wb = wb,
+                sheet = nome_aba,
+                style = openxlsx::createStyle(
+                  fontSize = 10,
+                  fontColour = "white",
+                  fgFill = "#848484",
+                  textDecoration = letra_negrito,
+                  halign = "center",
+                  valign = "center",
+                  wrapText = TRUE,
+                  numFmt = "0.0"
+                ),
+                rows = indicadores_linhas[j],
+                cols = 16,
+                gridExpand = FALSE
+              ) %>%
+                base::suppressWarnings()
+
+              # Removendo variáveis temporárias
+              base::rm(fund_cinza, fundo_cor, letra_negrito) %>%
+                base::suppressWarnings()
+            }# End: Aplicando estilo em negrito para linhas específicas
+
+            # Limpando variável temporária do loop
+            base::rm(j)
+
+          }# End: rodando para cada sequência de seguidos
+
+        }# End: Pelo menos um índice para essa cor
 
       }# End: Iterando sobre cada cor para aplicar estilos aos respectivos índices
 
