@@ -775,25 +775,24 @@ IndicePlanilhaSubs <- function(
 
           for (k in 1:base::nrow(dados)) {
 
-            if( !base::is.na(dados[k, 1]) )
+            # Define as posições da coluna e linha para aplicação de estilo
+            coluna_difereca <- base::which(
+              base::colnames(dados) %>%
+                stringr::str_detect("Diferen\u00E7a")
+            )
+
+            linha_diferenca <- k + inicio_tabela_numerico
+
+            if( !base::is.na(dados[k, coluna_difereca]) )
             {# Start: Verifica se a linha atual tem valor não nulo na coluna de IDAR
 
-              # Define as posições da coluna e linha para aplicação de estilo
-              coluna_difereca <- base::which(base::colnames(dados) %>% stringr::str_detect("Diferen\u00E7a"))
-              linha_diferenca <- k + inicio_tabela_numerico
-
               # Arredonda o valor de diferença com 1 casa decimal
-              valor_diferenca <- IPpackage::round_excel(
-                dados[k, base::which(base::colnames(dados) %>% stringr::str_detect("Diferen\u00E7a"))] %>%
-                  dplyr::pull() %>%
-                  base::as.numeric(),
-                1
-              )
+              valor_diferenca <- IPpackage::round_excel(dados[k, coluna_difereca], 1)
 
               # Obtém o valor de margem de erro para o ano máximo
               valor_me = df_me %>%
                 dplyr::filter(
-                  split_nome == base::sub("[|].*", "", base::colnames(dados)[dif_colunas[d]])
+                  split_nome == base::sub("[|].*", "", base::colnames(dados)[coluna_difereca])
                 ) %>%
                 dplyr::select(me) %>%
                 dplyr::pull()
