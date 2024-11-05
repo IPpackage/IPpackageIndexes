@@ -5,6 +5,7 @@
 #'
 #' @param resultado_final Data frame contendo os resultados de índices calculados localmente.
 #' @param serie_historica_servidor Data frame com os valores de referência para a série histórica de índices, obtidos do servidor.
+#' @param tabela_split Data frame com os dados 'dono_id', 'split_nome' e 'pasta_nome'.
 #' @param caminho_temporario (Opcional) String com o caminho onde os arquivos temporários serão armazenados durante a execução. Padrão: `"99.temp cal erro"`.
 #' @param caminho_resultado String com o caminho onde os arquivos de erro finais serão armazenados. Padrão: `"Erros"`.
 #'
@@ -40,6 +41,7 @@
 IndiceVerificandoIndices = function(
     resultado_final,
     serie_historica_servidor,
+    tabela_split,
     caminho_temporario = "99.temp cal erro",
     caminho_resultado = "Erros"
 )
@@ -206,8 +208,8 @@ IndiceVerificandoIndices = function(
             imp = (seriehistorica_importancia == importancia_servidor)
           )%>%
           dplyr::left_join(
-            split %>%
-              dplyr::select(dono_id,split_nome,pasta_nome),
+            tabela_split %>%
+              dplyr::select(dono_id, split_nome, pasta_nome),
             by = c("dono_id" = "dono_id"),
             relationship = "many-to-many"
           ) %>%

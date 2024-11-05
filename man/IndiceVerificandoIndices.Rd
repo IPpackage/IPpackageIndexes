@@ -7,6 +7,7 @@
 IndiceVerificandoIndices(
   resultado_final,
   serie_historica_servidor,
+  tabela_split,
   caminho_temporario = "99.temp cal erro",
   caminho_resultado = "Erros"
 )
@@ -15,6 +16,8 @@ IndiceVerificandoIndices(
 \item{resultado_final}{Data frame contendo os resultados de índices calculados localmente.}
 
 \item{serie_historica_servidor}{Data frame com os valores de referência para a série histórica de índices, obtidos do servidor.}
+
+\item{tabela_split}{Data frame com os dados 'dono_id', 'split_nome' e 'pasta_nome'.}
 
 \item{caminho_temporario}{(Opcional) String com o caminho onde os arquivos temporários serão armazenados durante a execução. Padrão: `"99.temp cal erro"`.}
 
