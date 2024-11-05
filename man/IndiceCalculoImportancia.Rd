@@ -4,12 +4,7 @@
 \alias{IndiceCalculoImportancia}
 \title{IndiceCalculoImportancia}
 \usage{
-IndiceCalculoImportancia(
-  dados_split,
-  all_importancia,
-  referencia,
-  remover_quem_n_tem_imp_area_nota = TRUE
-)
+IndiceCalculoImportancia(dados_split, all_importancia, referencia)
 }
 \arguments{
 \item{dados_split}{Lista de data frames, onde cada elemento representa um conjunto particionado de dados
@@ -19,8 +14,6 @@ de uma distribuidora específica, com informações sobre índices e atributos.}
 
 \item{referencia}{Data frame de referência que contém as definições e atributos de cada índice, incluindo configurações
 de fatores de correção e critérios de inclusão.}
-
-\item{remover_quem_n_tem_imp_area_nota}{Se for calcular apenas importância da área, deixar como FALSE; caso contrário, como TRUE.}
 }
 \value{
 Retorna uma lista com quatro data frames:

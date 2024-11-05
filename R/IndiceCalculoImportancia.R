@@ -8,7 +8,6 @@
 #' @param all_importancia Vetor de strings indicando os nomes de índices que devem ser considerados no cálculo da importância.
 #' @param referencia Data frame de referência que contém as definições e atributos de cada índice, incluindo configurações
 #' de fatores de correção e critérios de inclusão.
-#' @param remover_quem_n_tem_imp_area_nota Se for calcular apenas importância da área, deixar como FALSE; caso contrário, como TRUE.
 #'
 #' @details
 #' A função `IndiceCalculoImportancia` divide os dados por distribuidora, aplica um filtro de condições de cálculo e calcula índices de importância, notas, e
@@ -42,8 +41,7 @@
 IndiceCalculoImportancia <- function(
     dados_split,
     all_importancia,
-    referencia,
-    remover_quem_n_tem_imp_area_nota = TRUE #Se for calcular apenas importância da área, deixar como FALSE; caso contrário, como TRUE
+    referencia
 )
 {# Start: funcao_importancia
 
@@ -151,8 +149,8 @@ IndiceCalculoImportancia <- function(
 
           IPpackage::print_cor(
             df = base::paste0(
-              "dono_id ", dono_id, " = ", split_nomes, " [", split_i, "/", base::length(x),
-              "] Importâncias: ", base::paste0(all_importancia_rodar, collapse = ", "), "\n"
+              "dono_id ", dono_id, " = ", split_nomes, " [", split_i, "/", base::length(dados_split),
+              "] Import\u00E2ncias: ", base::paste0(all_importancia_rodar, collapse = ", "), "\n"
             ),
             cor = "verde",
             negrito = TRUE,
@@ -316,7 +314,7 @@ IndiceCalculoImportancia <- function(
                       colnames(a)[colnames(a) == remover_ordem] = "remover_ordemx"
 
                       IPpackage::print_cor(
-                        df = base::paste0("Não entra no cálculo da ordem: ", remover_ordem, " (removido)\n"),
+                        df = base::paste0("N\u00E3o entra no c\u00E1lculo da ordem: ", remover_ordem, " (removido)\n"),
                         cor = "vermelho",
                         italico = TRUE,
                         data.frame = FALSE
@@ -579,7 +577,7 @@ IndiceCalculoImportancia <- function(
             }# End: armazenando o resultado
 
             IPpackage::print_cor(
-              df = base::paste0("dono_id ",dono_id," = ",split_nomes," [",split_i,"/",length(x),'] | ',all_importancia_rodar[i]," [",i,"/",length(all_importancia_rodar),"]\n"),
+              df = base::paste0("dono_id ",dono_id," = ",split_nomes," [",split_i,"/",length(dados_split),'] | ',all_importancia_rodar[i]," [",i,"/",length(all_importancia_rodar),"]\n"),
               cor = "amarelo",
               italico = TRUE,
               data.frame = FALSE
@@ -704,14 +702,14 @@ IndiceCalculoImportancia <- function(
 
             resultado_tabela_atb = tibble::tibble(.)
 
-            if( remover_quem_n_tem_imp_area_nota == TRUE)
-            {
-
-              # para remover RE de CEPM-DO pq ele não tem imp_area_nota. Portanto, sem importância pra RE
-              resultado_tabela_atb = resultado_tabela_atb %>%
-                dplyr::filter(!base::is.na(importanciaq5_relativa))
-
-            }
+            # if( remover_quem_n_tem_imp_area_nota == TRUE)
+            # {
+            #
+            #   # para remover RE de CEPM-DO pq ele não tem imp_area_nota. Portanto, sem importância pra RE
+            #   resultado_tabela_atb = resultado_tabela_atb %>%
+            #     dplyr::filter(!base::is.na(importanciaq5_relativa))
+            #
+            # }
 
             resultado_tabela_atb
 
