@@ -27,7 +27,7 @@
 #' @importFrom tidyr drop_na
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_replace_all
-
+#'
 #' @examples
 #'
 #' base::print("Sem Exemplo")
