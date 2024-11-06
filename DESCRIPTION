@@ -1,6 +1,6 @@
 Package: IPpackageIndexes
 Type: Package
-Title: Innovare Pesquisa - Pacote R para Índices (IPpackageIndexes)
+Title: Innovare Pesquisa - Pacote R para Índices
 Version: 0.1.0
 Authors@R: person("Felipe", "Rocha", email = "felipe@innovarepesquisa.com.br", role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>

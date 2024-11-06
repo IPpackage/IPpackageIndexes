@@ -354,15 +354,27 @@ IndicePlanilhaGeral <- function(
         colNames = FALSE
       )
 
+      x = rodando_de_fato[-c(1:2)]
+
+      if( espanhol == TRUE & base::any(stringr::str_detect(x, "Diferen\u00E7a")) )
+      {# Start: trocando o texto para espanhol
+
+        x = x %>%
+          stringr::str_replace_all("Diferen\u00E7a", "Diferencia")
+
+      }# End: trocando o texto para espanhol
+
       openxlsx::writeData(
         wb = wb,
         sheet = nome_aba,
-        x = data.frame(t(rodando_de_fato[-c(1:2)])),
+        x = data.frame(t(x)),
         startCol = 3,
         startRow = 7,
         rowNames = FALSE,
         colNames = FALSE
       )
+
+      base::rm(x)
 
       # Removendo mesclagem de células existente e aplicando nova mesclagem na linha 6
       openxlsx::removeCellMerge(

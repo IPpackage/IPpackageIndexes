@@ -331,6 +331,14 @@ IndicePlanilhaSubs <- function(
       )
       x <- base::sub(".*[|]", "", x)
 
+      if( espanhol == TRUE & base::any(stringr::str_detect(x, "Diferen\u00E7a")) )
+      {# Start: trocando o texto para espanhol
+
+        x = x %>%
+          stringr::str_replace_all("Diferen\u00E7a", "Diferencia")
+
+      }# End: trocando o texto para espanhol
+
       openxlsx::writeData(
         wb = wb,
         sheet = nome_aba,
@@ -508,7 +516,6 @@ IndicePlanilhaSubs <- function(
         )
 
       }
-
 
     }# End: Configurando cabeçalhos da tabela e mesclando células para estrutura visual
 
@@ -773,10 +780,10 @@ IndicePlanilhaSubs <- function(
         for( d in 1:base::length(dif_colunas) )
         {# Start: Loop para aplicar formatação em cada coluna de diferença
 
-          for (k in 1:base::nrow(dados)) {
+          # Define as posições da coluna e linha para aplicação de estilo
+          coluna_difereca <- dif_colunas[d]
 
-            # Define as posições da coluna e linha para aplicação de estilo
-            coluna_difereca <- dif_colunas[d]
+          for (k in 1:base::nrow(dados)) {
 
             linha_diferenca <- k + inicio_tabela_numerico
 
