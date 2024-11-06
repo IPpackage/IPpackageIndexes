@@ -776,10 +776,7 @@ IndicePlanilhaSubs <- function(
           for (k in 1:base::nrow(dados)) {
 
             # Define as posições da coluna e linha para aplicação de estilo
-            coluna_difereca <- base::which(
-              base::colnames(dados) %>%
-                stringr::str_detect("Diferen\u00E7a")
-            )
+            coluna_difereca <- dif_colunas[d]
 
             linha_diferenca <- k + inicio_tabela_numerico
 

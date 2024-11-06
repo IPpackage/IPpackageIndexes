@@ -13,7 +13,8 @@
 #' @param caminho_temporario Um `character` que define o diretório temporário onde os resultados intermediários serão salvos, padrão é `"99.temp cal indi"`.
 #' @param caminho_resultado Um `character` que define o diretório de saída onde o resultado final será salvo, padrão é `"Output"`.
 #' @param nome_salvar Um `character` que define o nome do arquivo final de saída, padrão é `"Correlacao"`.
-#'
+#' @param metodo_rodar Por padrão, calcula a correlação de 'kendall' (kendall, pearson, etc).
+
 #' @details
 #' A função realiza uma série de etapas:
 #' - Filtragem e preparação dos dados de acordo com os parâmetros de `splits` e `indice_correlacao`.
@@ -44,7 +45,8 @@ IndiceCalculoCorrelacao <- function(
     indice_correlacao,
     caminho_temporario = "99.temp cal indi",
     caminho_resultado = "Output",
-    nome_salvar = "Correlacao"
+    nome_salvar = "Correlacao",
+    metodo_rodar = "kendall"
 )
 {# Start: função 'IndiceCalculoCorrelacao'
 
@@ -278,7 +280,7 @@ IndiceCalculoCorrelacao <- function(
                           "value" = "value"
                         )
                       ),
-                      metodo = "kendall"
+                      metodo = metodo_rodar
                     )$`Correlacao` #kendall
                   ) %>%
                     dplyr::mutate(

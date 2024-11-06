@@ -11,7 +11,8 @@ IndiceCalculoCorrelacao(
   indice_correlacao,
   caminho_temporario = "99.temp cal indi",
   caminho_resultado = "Output",
-  nome_salvar = "Correlacao"
+  nome_salvar = "Correlacao",
+  metodo_rodar = "kendall"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ IndiceCalculoCorrelacao(
 \item{caminho_resultado}{Um `character` que define o diretório de saída onde o resultado final será salvo, padrão é `"Output"`.}
 
 \item{nome_salvar}{Um `character` que define o nome do arquivo final de saída, padrão é `"Correlacao"`.}
+
+\item{metodo_rodar}{Por padrão, calcula a correlação de 'kendall' (kendall, pearson, etc).}
 }
 \description{
 A função `IndiceCalculoCorrelacao` calcula correlações ponderadas entre variáveis especificadas e referência

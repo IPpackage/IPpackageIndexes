@@ -1,11 +1,10 @@
 Package: IPpackageIndexes
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Innovare Pesquisa - Pacote R para Índices (IPpackageIndexes)
 Version: 0.1.0
-Author: Who wrote it
+Authors@R: person("Felipe", "Rocha", email = "felipe@innovarepesquisa.com.br", role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Functions to Indexes.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
