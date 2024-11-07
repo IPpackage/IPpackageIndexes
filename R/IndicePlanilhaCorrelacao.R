@@ -14,6 +14,7 @@
 #' @param Tab_Fundo_cinza Data frame com linhas que devem ter fundo cinza.
 #' @param referencia_filtrado Data frame com cores específicas de indicadores.
 #' @param cor_fundo_menu Data frame com cores e estilos para cada título de coluna.
+#' @param formatacao_numero Formatação que entra nos número na 'createStyle'. Por padrão, "0.0".
 #' @param print Se TRUE, abre a planilha automaticamente após a criação.
 #'
 #' @details A função configura uma aba completa, mesclando células e aplicando estilos específicos para formatação de correlações. Adiciona cabeçalhos customizados, cores, e estilo condicional de acordo com a natureza dos dados.
@@ -48,6 +49,7 @@ IndicePlanilhaCorrelacao <- function(
     Tab_Fundo_cinza,
     referencia_filtrado,
     cor_fundo_menu,
+    formatacao_numero = "0.0",
     print = FALSE
 )
 {# Start: função 'IndicePlanilhaCorrelacao'
@@ -581,7 +583,7 @@ IndicePlanilhaCorrelacao <- function(
                   halign = "center",
                   valign = "center",
                   wrapText = TRUE,
-                  numFmt = "0.0"
+                  numFmt = formatacao_numero
                 ),
                 rows = indicadores_linhas[j],
                 cols = c(3:c(base::length(rodando_de_fato))),

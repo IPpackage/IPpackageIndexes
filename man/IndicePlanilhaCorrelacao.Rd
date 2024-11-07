@@ -18,6 +18,7 @@ IndicePlanilhaCorrelacao(
   Tab_Fundo_cinza,
   referencia_filtrado,
   cor_fundo_menu,
+  formatacao_numero = "0.0",
   print = FALSE
 )
 }
@@ -47,6 +48,8 @@ IndicePlanilhaCorrelacao(
 \item{referencia_filtrado}{Data frame com cores específicas de indicadores.}
 
 \item{cor_fundo_menu}{Data frame com cores e estilos para cada título de coluna.}
+
+\item{formatacao_numero}{Formatação que entra nos número na 'createStyle'. Por padrão, "0.0".}
 
 \item{print}{Se TRUE, abre a planilha automaticamente após a criação.}
 }
