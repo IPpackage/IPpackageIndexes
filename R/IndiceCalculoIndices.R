@@ -125,7 +125,7 @@ IndiceCalculoIndices <- function(
 
       ~ {# Start: para cada split_id
 
-        # split_i = 1; split_df = xxxx[[split_i]]
+        # split_i = 2; split_df = xxxx[[split_i]]
         split_i = .y
         split_df = .x
 
@@ -195,7 +195,7 @@ IndiceCalculoIndices <- function(
 
             }# End: informações
 
-            # i = base::which(all_indices == "IAC")
+            # i = base::which(all_indices == "ISQP")
             for( i in 1:base::length(all_indices) )
             {# Start: fazer para cada indice
 
@@ -234,7 +234,6 @@ IndiceCalculoIndices <- function(
                     ","
                   )
                 )
-
 
                 if( vou_ponderar == "imp_preco_qualidade" )
                 {# Start: pegando as variáveis que precisarei rodar
@@ -359,8 +358,15 @@ IndiceCalculoIndices <- function(
 
               {# Start: arrumando o banco de dados
 
+                if( indice_rodando$ponderar %nin% "porte_at_mt" )
+                {# Start: se não vou poderar por porte, não preciso dessa informação vinda no banco. Coloco um genérico aqui
+
+                  dados_split$porte = "GERAL"
+
+                }# End: se não vou poderar por porte, não preciso dessa informação vinda no banco. Coloco um genérico aqui
+
                 banco_final = dados_split %>%
-                  dplyr::select(dplyr::all_of(variaveis), "peso") %>%
+                  dplyr::select(dplyr::all_of(variaveis), "peso", porte) %>%
                   tidyr::pivot_longer(cols = dplyr::all_of(variaveis)) %>%
                   dplyr::mutate(name_orig = name) %>%
                   dplyr::relocate(name, .after = name_orig) %>%
@@ -422,7 +428,8 @@ IndiceCalculoIndices <- function(
                       a = b %>%
                         tibble::tibble() %>%
                         dplyr::mutate(
-                          name = "vxnaoexiste"
+                          name = "vxnaoexiste",
+                          porte = "vxnaoexiste"
                         )
 
                     }# End: se não tem dados, colocar como zero
@@ -701,6 +708,7 @@ IndiceCalculoIndices <- function(
                   }else{
 
                     amostra_prent = amostra_pretendida[amostra_pretendida$dono_id == dono_id, ] %>%
+                      dplyr::filter(!base::is.na(dono_id)) %>%
                       dplyr::select(amostra_pretendida) %>%
                       base::unique() %>%
                       dplyr::pull()
@@ -1014,6 +1022,153 @@ IndiceCalculoIndices <- function(
 
                   }# End = precisa calcular a soma ( Taxa de satisfação = IDAT * importância Relativa )
 
+                  if( indice_rodando$ponderar == "porte_at_mt" )
+                  {# Start = ponderar pelo porte (indice_at * n_at + indice_mt * n_mt) / (n_at + n_mt)
+
+                    resultados_calculados_porte = banco_final %>%
+                      dplyr::arrange(porte) %>%
+                      dplyr::group_by(porte) %>%
+                      dplyr::group_split()  %>%
+                      purrr::imap(
+                        ~ {
+
+                          #porte_i = 2; porte_df = dados_split_porte[[porte_i]]
+                          porte_i = .y
+                          porte_df = .x
+                          #
+                          {# Start: Informações
+
+                            porte_rodando = base::unique(porte_df$porte)
+
+                            variaveis_porte_rodando = base::unlist(
+                              base::strsplit(
+                                indice_rodando %>%
+                                  dplyr::select(
+                                    base::paste0(
+                                      "variaveis_",
+                                      porte_rodando %>%
+                                        stringr::str_to_lower()
+                                    )
+                                  ) %>%
+                                  dplyr::pull() %>%
+                                  stringr::str_remove_all(" ") %>%
+                                  stringr::str_remove_all("[()]"),
+                                ","
+                              )
+                            )
+
+                            n_linhas_porte = dados_split %>%
+                              dplyr::filter(porte == porte_rodando) %>%
+                              dplyr::select(dplyr::all_of(variaveis_porte_rodando), "peso") %>%
+                              {# Start: removendo NA's
+
+                                temp = tibble::tibble(.)
+
+                                xtemp = temp %>%
+                                  dplyr::select(-c(peso)) %>%
+                                  dplyr::mutate(
+                                    dplyr::across(
+                                      .cols = dplyr::everything(),
+                                      ~ base::ifelse(base::is.na(.), 1, 0)
+                                    )
+                                  ) %>%
+                                  dplyr::mutate(x = base::rowSums(.)) %>%
+                                  dplyr::select(x) %>%
+                                  dplyr::pull()
+
+                                temp$qwe = xtemp
+
+                                temp = temp %>%
+                                  dplyr::filter((qwe < (base::length(variaveis) + 1))) %>%
+                                  dplyr::select(-qwe)
+
+                                rm(xtemp)
+
+                                temp
+                              } %>% # End: removendo NA's
+                              dplyr::summarise(
+                                linhas = n(),
+                                linhas_peso = base::sum(peso)
+                              )
+
+                          }# End: Informações
+
+                          {# Start: calculando para esse porte
+
+                            porte_df %>%
+                              dplyr::filter(name_orig %in% c(variaveis_porte_rodando)) %>%
+                              dplyr::filter(!base::is.na(value)) %>%
+                              dplyr::summarise(
+                                indice = stats::weighted.mean(var_indice, w = peso, na.rm = TRUE),
+                                media = stats::weighted.mean(var_media, w = peso, na.rm = TRUE),
+                                n = n(),
+                                n_peso = base::sum(peso)
+                              ) %>%
+                              dplyr::mutate(
+                                porte_rodando = porte_rodando,
+                                linhas = n_linhas_porte$linhas,
+                                linhas_peso = n_linhas_porte$linhas_peso
+                              )
+
+                          }# End: calculando para esse porte
+
+                        }
+                      ) %>%
+                      dplyr::bind_rows()
+
+                    resultados_calculados = resultados_calculados_porte %>%
+                      {# Start: Ponderando
+
+                        #Verificando se preciso ponderar
+                        resultado_indice = tibble::tibble(.)
+
+                        if( base::nrow(resultado_indice) > 1 )
+                        {# Start: preciso ponderar
+
+                          n_at = resultado_indice %>%
+                            dplyr::filter(porte_rodando == 'AT') %>%
+                            dplyr::select(linhas) %>%
+                            dplyr::pull() %>%
+                            base::as.numeric()
+
+                          n_mt = resultado_indice %>%
+                            dplyr::filter(porte_rodando == 'MT') %>%
+                            dplyr::select(linhas) %>%
+                            dplyr::pull() %>%
+                            base::as.numeric()
+
+                          indice_at = resultado_indice %>%
+                            dplyr::filter(porte_rodando == 'AT') %>%
+                            dplyr::select(indice) %>%
+                            dplyr::pull() %>%
+                            base::as.numeric()
+
+                          indice_mt = resultado_indice %>%
+                            dplyr::filter(porte_rodando == 'MT') %>%
+                            dplyr::select(indice) %>%
+                            dplyr::pull() %>%
+                            base::as.numeric()
+
+                          resultado_indice = resultado_indice[1, ] %>%
+                            dplyr::mutate(
+                              dplyr::across(.cols = -c(1, 2, 3), ~0)
+                            ) %>%
+                            dplyr::mutate(
+                              indice = (indice_at * n_at + indice_mt * n_mt) / (n_at + n_mt)
+                              , porte_rodando = 'ponderado (AT, MT)'
+                            )
+
+                        }# End: preciso ponderar
+
+                        resultado_indice
+
+                      }# End: Ponderando
+
+                    resultados_calculados = resultados_calculados %>%
+                      dplyr::select(indice, media, n, n_peso)
+
+                  }# End = ponderar pelo porte (indice_at * n_at + indice_mt * n_mt) / (n_at + n_mt)
+
                 }# End: calculando o índice
 
                 resultado_indice = base::cbind(
@@ -1143,13 +1298,26 @@ IndiceCalculoIndices <- function(
                     #Verificando se preciso excluir valores (tipo em ISQP)
                     resultado_indice = tibble::tibble(.)
 
-                    if( indice_rodando$ponderar %in% "imp_relativo" )
+                    if( indice_rodando$ponderar %in% c("imp_relativo") )
                     {
 
                       resultado_indice = resultado_indice %>%
                         dplyr::mutate(
                           dplyr::across(
                             .cols = -c(1, 2, 3, 4),
+                            ~ 0
+                          )
+                        )
+
+                    }
+
+                    if( indice_rodando$ponderar %in% c("porte_at_mt") )
+                    {
+
+                      resultado_indice = resultado_indice %>%
+                        dplyr::mutate(
+                          dplyr::across(
+                            .cols = -c(1, 2, 3, 4, base::ncol(resultado_indice)),
                             ~ 0
                           )
                         )
