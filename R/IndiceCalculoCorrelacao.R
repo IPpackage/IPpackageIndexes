@@ -154,8 +154,8 @@ IndiceCalculoCorrelacao <- function(
 
             #Calculando cada um dos índices
 
-            ref = base::which(all_indices == "ISG")
-            i = base::which(all_indices == "SE")
+            # ref = base::which(all_indices == "ISG")
+            # i = base::which(all_indices == "SE")
             for( ref in 1:base::length(all_indices) )
             {# Start: Calculando cada um dos índices
 
