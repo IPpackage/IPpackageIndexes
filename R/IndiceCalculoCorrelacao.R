@@ -79,7 +79,7 @@ IndiceCalculoCorrelacao <- function(
     dplyr::filter(
       dono_id %in% c(
         splits %>%
-          dplyr::filter(pasta_nome %in% c(rodando)) %>%
+          dplyr::filter(pasta_nome %in% c(vou_rodar)) %>%
           dplyr::select(split_id) %>%
           base::unique() %>%
           dplyr::pull()
@@ -154,15 +154,19 @@ IndiceCalculoCorrelacao <- function(
 
             #Calculando cada um dos índices
 
-            # ref = base::which(all_indices == "SE1")
-            # i = base::which(all_indices == "ISG")
+            ref = base::which(all_indices == "ISG")
+            i = base::which(all_indices == "SE")
             for( ref in 1:base::length(all_indices) )
             {# Start: Calculando cada um dos índices
 
               variaveis_referencia = indice_correlacao %>%
                 dplyr::filter(indice_sigla == all_indices[ref]) %>%
                 dplyr::select(indice_variavel) %>%
-                dplyr::pull()
+                dplyr::pull() %>%
+                stringr::str_remove_all(" ") %>%
+                stringr::str_remove_all("[()]") %>%
+                stringr::str_split(",") %>%
+                base::unlist()
 
               indice_sigla_referencia = indice_correlacao %>%
                 dplyr::filter(indice_sigla == all_indices[ref]) %>%
@@ -187,7 +191,11 @@ IndiceCalculoCorrelacao <- function(
                   variaveis_rodando = indice_correlacao %>%
                     dplyr::filter(indice_sigla == all_indices[i]) %>%
                     dplyr::select(indice_variavel) %>%
-                    dplyr::pull()
+                    dplyr::pull() %>%
+                    stringr::str_remove_all(" ") %>%
+                    stringr::str_remove_all("[()]") %>%
+                    stringr::str_split(",") %>%
+                    base::unlist()
 
                   indice_sigla_rodando = indice_correlacao %>%
                     dplyr::filter(indice_sigla == all_indices[i]) %>%
@@ -221,23 +229,48 @@ IndiceCalculoCorrelacao <- function(
 
                   variaveis = variaveis_rodando
 
-                  banco_final = dados_split %>% {
-                    a = tibble::tibble(.)
-                    a$var1 = a[[variaveis]]
-                    a$var2 = a[[variaveis_referencia]]
-                    a
-                  } %>%
-                    dplyr::select(var1, var2, "peso") %>%
-                    tidyr::pivot_longer(cols = var1) %>%
-                    tidyr::pivot_longer(cols = var2, names_to="n_ref", values_to = "referencia") %>%
+                  banco_final = dados_split %>%
+                    dplyr::select(dplyr::all_of(variaveis_referencia)) %>%
+                    dplyr::rename_with(
+                      ~ base::paste0("referencia_", .x),
+                      .cols = dplyr::everything()
+                    ) %>%
+                    base::cbind(
+                      dados_split %>%
+                        dplyr::select(dplyr::all_of(variaveis)) %>%
+                        dplyr::rename_with(
+                          ~ base::paste0("variaveis_", .x),
+                          .cols = dplyr::everything()
+                        )
+                    ) %>%
+                    base::cbind(
+                      dados_split %>%
+                        dplyr::select(peso)
+                    ) %>%
+                    tidyr::pivot_longer(
+                      cols = dplyr::starts_with("variaveis_"),
+                      names_to = "name",
+                      values_to = "value",
+                      values_drop_na = TRUE
+                    ) %>%
+                    tidyr::pivot_longer(
+                      cols = dplyr::starts_with("referencia_"),
+                      names_to = "n_ref",
+                      values_to = "referencia",
+                      values_drop_na = TRUE
+                    ) %>%
                     dplyr::mutate(
-                      value_var = dplyr::case_when(
+                      name = stringr::str_remove_all(name, "variaveis_"),
+                      n_ref = stringr::str_remove_all(n_ref, "referencia_")
+                    ) %>%
+                    dplyr::mutate(
+                      value = dplyr::case_when(
                         stats::as.formula(
                           base::paste0("value", valor_ns_nr_rodando, " ~ NA")
                         ),
                         TRUE ~ value
                       ),
-                      referencia_var = dplyr::case_when(
+                      referencia = dplyr::case_when(
                         stats::as.formula(
                           base::paste0("referencia", valor_ns_nr_referencia, " ~ NA")
                         ),
@@ -245,18 +278,42 @@ IndiceCalculoCorrelacao <- function(
                       )
                     )
 
-                  {# Start: Se for v112 = NPS, var_indice virá NPS e não índice
-
-                    # Como é correlação, não preciso fazer transformação!
-
-                    }# End: Se for v112 = NPS, var_indice virá NPS e não índice
-
-                  banco_final = banco_final %>%
-                    dplyr::mutate(
-                      referencia = referencia_var,
-                      value = value_var
-                    ) %>%
-                    dplyr::select(-c(referencia_var, value_var))
+                  # banco_final = dados_split %>% {
+                  #   a = tibble::tibble(.)
+                  #   a$var1 = a[[variaveis]]
+                  #   a$var2 = a[[variaveis_referencia]]
+                  #   a
+                  # } %>%
+                  #   dplyr::select(var1, var2, "peso") %>%
+                  #   tidyr::pivot_longer(cols = var1) %>%
+                  #   tidyr::pivot_longer(cols = var2, names_to="n_ref", values_to = "referencia") %>%
+                  #   dplyr::mutate(
+                  #     value_var = dplyr::case_when(
+                  #       stats::as.formula(
+                  #         base::paste0("value", valor_ns_nr_rodando, " ~ NA")
+                  #       ),
+                  #       TRUE ~ value
+                  #     ),
+                  #     referencia_var = dplyr::case_when(
+                  #       stats::as.formula(
+                  #         base::paste0("referencia", valor_ns_nr_referencia, " ~ NA")
+                  #       ),
+                  #       TRUE ~ referencia
+                  #     )
+                  #   )
+                  #
+                  # {# Start: Se for v112 = NPS, var_indice virá NPS e não índice
+                  #
+                  #   Como é correlação, não preciso fazer transformação!
+                  #
+                  # }# End: Se for v112 = NPS, var_indice virá NPS e não índice
+                  #
+                  # banco_final = banco_final %>%
+                  #   dplyr::mutate(
+                  #     referencia = referencia_var,
+                  #     value = value_var
+                  #   ) %>%
+                  #   dplyr::select(-c(referencia_var, value_var))
 
                 }# End: Arrumando o banco de dados
 
