@@ -160,7 +160,7 @@ IndiceCalculoImportancia <- function(
         }# End: informações sobre a distribuidora que estou rodando
 
         #Calculando cada um dos índices
-        i = base::which(all_importancia_rodar == "ISCAL")
+        # i = base::which(all_importancia_rodar == "FE")
 
         for( i in 1:length(all_importancia_rodar) )
         {# Start: fazer para cada indice (i)
@@ -203,8 +203,8 @@ IndiceCalculoImportancia <- function(
               )
 
             dados_ordem = dados_split_rodando %>%
-              dplyr::select(id, dplyr::all_of(vars_nota_imp)) %>%
-              dplyr::filter(!dplyr::if_all(-id, is.na))
+              dplyr::select(id, dplyr::all_of(vars_nota_imp), peso) %>%
+              dplyr::filter(!dplyr::if_all(-c(id, peso), is.na))
 
             amostra = base::nrow(dados_split_rodando)
 
@@ -425,8 +425,8 @@ IndiceCalculoImportancia <- function(
             {# Start: dados_notas (Calcula as notas médias de importância)
 
               calculo_vars = dados_ordem %>%
-                dplyr::select(id, dplyr::all_of(vars_nota_imp)) %>%
-                tidyr::pivot_longer(names_to = 'item', values_to = 'valor', cols = -id) %>%
+                dplyr::select(id, dplyr::all_of(vars_nota_imp), peso) %>%
+                tidyr::pivot_longer(names_to = 'item', values_to = 'valor', cols = -c(id, peso)) %>%
                 # dplyr::mutate(item = dplyr::recode(item, !!!imp_notas)) %>%
                 dplyr::mutate(item = item) %>%
                 dplyr::group_by(item) %>%
@@ -443,7 +443,13 @@ IndiceCalculoImportancia <- function(
                     ) %>%
                       dplyr::left_join(
                         dfi %>%
-                          dplyr::count(valor) %>%
+                          dplyr::mutate(
+                            valor_peso = base::ifelse(base::is.na(valor), NA, peso)
+                          ) %>%
+                          dplyr::group_by(valor) %>%
+                          dplyr::summarise(
+                            n = base::sum(valor_peso)
+                          ) %>%
                           dplyr::mutate(pct = n / base::sum(n) * 100),
                         by = c("valor" = "valor")
                       ) %>%
@@ -459,7 +465,7 @@ IndiceCalculoImportancia <- function(
                     dfi_media = dfi %>%
                       dplyr::filter(valor<=10) %>%
                       dplyr::summarise(
-                        importancianota_media = base::mean(`valor`)
+                        importancianota_media = stats::weighted.mean(valor, peso)
                       )
 
                     dfi_fim = base::cbind(dfi_notas, dfi_media) %>%
